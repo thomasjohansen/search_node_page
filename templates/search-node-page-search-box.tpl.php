@@ -2,6 +2,8 @@
 /**
  * @file
  * Default template for the search box.
+ *
+ * @TODO: Review - danish in template...
  */
 ?>
 <form id="searchBoxApp" data-ng-strict-di data-ng-controller="boxController">

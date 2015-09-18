@@ -95,6 +95,7 @@ function search_node_page_authenticate($search_server) {
  * For defining external libraries.
  */
 function search_node_page_libraries_info() {
+  // @TODO: Review - remove this comment?:
   // A very simple library. No changing APIs (hence, no versions), no variants.
   // Expected to be extracted into 'sites/all/libraries/simple'.
   $libraries['angular'] = array(
@@ -113,8 +114,8 @@ function search_node_page_libraries_info() {
 
   $libraries['search_node'] = array(
     'name' => 'Search node Angular library',
-    'vendor url' => 'http://example.com/simple',
-    'download url' => 'http://example.com/simple',
+    'vendor url' => 'http://example.com/simple',  //@TODO: Review - example.com/simple?
+    'download url' => 'http://example.com/simple',  //@TODO: Review - example.com/simple?
     'version arguments' => array(
       'file' => 'search.min.js',
       'pattern' => '/@version v(\d+\.\d+.\d+(-\w*\d*)*)/',
@@ -163,6 +164,7 @@ function search_node_page_block_configure($delta) {
     case 'search_node_search_result' :
       /**
        * @TODO: What options should be here?
+       * @TODO: Review - what indeed? :)
        */
       break;
   }
@@ -179,10 +181,11 @@ function search_node_page_form_block_admin_configure_alter(&$form, &$form_state,
   if ($form['delta']['#value'] == 'search_node_search_box') {
 
     // Try to load selected server.
+    // @TODO: Review - very long lines:
     $selected_server = !empty($form_state['values']['search_node']['server']) ? $form_state['values']['search_node']['server'] : $form['settings']['search_node']['server']['#default_value'];
     $server = search_api_server_load($selected_server);
 
-    // Build indexes available base on the loaded server.
+    // Build indexes available based on the loaded server.
     if ($server) {
       $server_indexes = search_api_index_load_multiple(FALSE, array('server' => $server->machine_name));
     }
@@ -235,14 +238,15 @@ function search_node_page_form_block_admin_configure_alter(&$form, &$form_state,
       }
       $form['settings']['search_node']['forces']['selected']['#options'] = $terms;
     }
+    // @TODO: Review - is there a failure case here or is it okay to do nothing?
   }
 }
 
 /**
  * Implements hook_form_HOOK_alter().
  *
- * @TODO: Merge the two alter functions, they differe in the way they access
- *        the form elemenets.
+ * @TODO: Merge the two alter functions, they differ in the way they access
+ *        the form elements.
  *
  * Change the panes configuration form to support ajax updates.
  */
@@ -538,7 +542,7 @@ function search_node_page_block_save($delta = '', $edit = array()) {
 /**
  * Implements hook_block_view().
  */
-function search_node_page_block_view($delta='') {
+function search_node_page_block_view($delta = '') {
   $block = array();
 
   switch($delta) {
@@ -563,7 +567,7 @@ function search_node_page_block_view($delta='') {
  * Builds the angular configuration and injects it into the page.
  *
  * @param array $configuration
- *   The configutaion for this search box.
+ *   The configuration for this search box.
  *
  * @return array
  *   Render array to display the search box placeholder.
@@ -573,7 +577,8 @@ function search_node_page_build_search_box($configuration = array()) {
     drupal_set_message(t('Search node - search box needs to be configured before it can be used.'), 'error');
   }
   else {
-    // Check if the angular library is installed.
+    // Load and check if the angular library is installed.
+    // @TODO: Review - maybe split the loading and the checking up?
     if (($library = libraries_load('angular')) && empty($library['installed'])) {
       // Something went wrong.
       drupal_set_message($library['error message'], 'error');
@@ -594,7 +599,6 @@ function search_node_page_build_search_box($configuration = array()) {
         $boost[$field] = $fieldOption['boost'];
       }
     }
-
 
     // Build array to convert to json configuration.
     $conf = array(
@@ -632,6 +636,7 @@ function search_node_page_build_search_box($configuration = array()) {
             'value' => $term->name,
           );
         }
+
         /**
          * @TODO: Fix type, so it's not hardcoded.
          */
@@ -665,6 +670,7 @@ function search_node_page_build_search_box($configuration = array()) {
     }
 
     // Add the configuration to the page.
+    // @TODO: Review - maybe add a comment about why this approach is necessary?
     drupal_add_js("angular.module('searchAppConfig', []).constant('CONFIG', " . json_encode($conf). ");", array(
         'type' => 'inline',
         'scope' => 'footer',

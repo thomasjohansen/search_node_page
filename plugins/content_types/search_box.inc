@@ -24,7 +24,6 @@ $plugin = array(
 function search_node_page_search_box_content_type_render($subtype, $conf, $panel_args, $context) {
   $block = new stdClass();
 
-
   $block->content = search_node_page_build_search_box($conf['search_node']);
 
   return $block;
@@ -46,6 +45,9 @@ function search_node_page_search_box_content_type_edit_form($form, &$form_state)
   return $form;
 }
 
+/**
+ * @TODO: Review - missing documentation.
+ */
 function search_node_page_search_box_content_type_edit_form_submit(&$form, &$form_state) {
   foreach (array_keys($form_state['plugin']['defaults']) as $key) {
     if (isset($form_state['values'][$key])) {
@@ -62,7 +64,7 @@ function search_node_page_search_box_pane_admin_info($subtype, $conf, $contexts)
     $block = new stdClass;
     $block->title = $conf['search_node']['server'] . ' - ' . $conf['search_node']['index'];
     /**
-     * @TODO: Make overview based on confinguration.
+     * @TODO: Make overview based on configuration.
      */
     $block->content = 'Make pertty overview of settings';
 

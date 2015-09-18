@@ -22,7 +22,6 @@ $plugin = array(
 function search_node_page_search_result_content_type_render($subtype, $conf, $panel_args, $context) {
   $block = new stdClass();
 
-
   $block->content = search_node_page_block_view('search_node_search_result');
 
   return $block;
@@ -42,6 +41,9 @@ function search_node_page_search_result_content_type_edit_form($form, &$form_sta
   return $form;
 }
 
+/**
+ * @TODO: Review - empty function, no documentation.
+ */
 function search_node_page_search_result_content_type_edit_form_submit(&$form, &$form_state) {
 
 }
