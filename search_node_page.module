@@ -146,9 +146,11 @@ function search_node_page_block_info() {
   return array(
     'search_node_search_box' => array(
       'info' => t('Search node - Search field'),
+      'cache' => DRUPAL_NO_CACHE,
     ),
     'search_node_search_result' => array(
       'info' => t('Search node - Results'),
+      'cache' => DRUPAL_NO_CACHE,
     ),
   );
 }
