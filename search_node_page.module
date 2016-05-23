@@ -207,24 +207,62 @@ function search_node_page_form_block_admin_configure_alter(&$form, &$form_state,
 
       // Build field and filter selection.
       $fields = array();
-      $filters = array();
+      $dates = array();
+      $filters = array(
+        'taxonomy' => array(),
+        'boolean' => array(),
+      );
       $selected_index = !empty($form_state['values']['search_node']['index']) ? $form_state['values']['search_node']['index'] : $form['settings']['search_node']['index']['#default_value'];
       $index = search_api_index_load($selected_index);
       foreach ($index->options['fields'] as $field => $options) {
-        if (isset($options['entity_type']) && $options['entity_type'] == 'taxonomy_term') {
-          // Load field.
-          $info = field_info_field($field);
-          $vocab = taxonomy_vocabulary_machine_name_load($info['settings']['allowed_values'][0]['vocabulary']);
-          $filters[$field] = $vocab->name . ' (' . $field .')';
-        }
-        else {
-          // The index save some fields with ":".
-          $name = explode(':', $field);
-          $fields[$field] = array_shift($name) . ' (' . $field .')';
+        $type = isset($options['entity_type']) ? $options['entity_type'] : $options['type'];
+        switch ($type) {
+          case 'taxonomy_term':
+            // Load field.
+            $info = field_info_field($field);
+            $vocab = taxonomy_vocabulary_machine_name_load($info['settings']['allowed_values'][0]['vocabulary']);
+            $filters['taxonomy'][$field] = $vocab->name . ' (' . $field . ')';
+
+            // Also add it to searchable fields.
+            $fields[$field] = $vocab->name . ' (' . $field . ')';
+            break;
+
+          case 'boolean':
+            $info = field_info_field($field);
+            $bundles = array_keys($info['bundles']);
+            $entity_type = reset($bundles);
+            $bundle_name = reset($info['bundles'])[0];
+            $info = field_info_instance($entity_type, $field, $bundle_name);
+            $filters['boolean'][$field] = t($info['label']) . ' (' . $field . ')';;
+            break;
+
+          case 'date':
+            // Check if date has an value2 in the index to indicate a to date.
+            if (isset($index->options['fields'][$field . '2'])) {
+              $field_name = explode(':', $field)[0];
+              $info = field_info_field($field_name);
+              $bundles = array_keys($info['bundles']);
+              $entity_type = reset($bundles);
+              $bundle_name = reset($info['bundles'])[0];
+              $info = field_info_instance($entity_type, $field_name, $bundle_name);
+              $dates[$field] = t($info['label']) . ' (' . $field_name . ')';
+              break;
+            }
+          // Fall through to default.
+
+          default:
+            // The index save some fields with ":".
+            $name = explode(':', $field);
+            $fields[$field] = array_shift($name) . ' (' . $field . ')';
+            break;
         }
       }
       $form['settings']['search_node']['options']['fields']['#options'] = $fields;
-      $form['settings']['search_node']['options']['filters']['#options'] = $filters;
+      $form['settings']['search_node']['options']['filters']['taxonomy']['#options'] = $filters['taxonomy'];
+      $form['settings']['search_node']['options']['filters']['boolean']['#options'] = $filters['boolean'];
+
+      // Update sort fields.
+      $form['settings']['search_node']['sorting']['field']['#options'] = array('_none_' => t('None')) + $fields;
 
       // Updater interval fields.
       $form['settings']['search_node']['intervals']['fields']['#options'] = $fields;
