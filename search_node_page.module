@@ -273,6 +273,9 @@ function search_node_page_form_block_admin_configure_alter(&$form, &$form_state,
       // Update force filters with the options.
       $form['settings']['search_node']['forces']['field']['#options'] = array('_none_' => t('Select field')) + $filters;
 
+      // Highlight fields.
+      $form['settings']['search_node']['highlight']['fields']['#options'] = $fields;
+
       // Load taxonomy based on selected field.
       $field = !empty($form_state['values']['search_node']['forces']['field']) ? $form_state['values']['search_node']['forces']['field'] : $form['settings']['search_node']['forces']['field']['#default_value'];
       $info = field_info_field($field);
@@ -404,6 +407,9 @@ function search_node_page_form_search_node_page_search_box_content_type_edit_for
 
     // Update force filters with the options.
     $form['search_node']['forces']['field']['#options'] = array('_none_' => t('Select field')) + $filters['taxonomy'];
+
+    // Highlight fields.
+    $form['search_node']['highlight']['fields']['#options'] = $fields;
 
     // Load taxonomy based on selected field.
     $field = !empty($form_state['input']['search_node']['forces']['field']) ? $form_state['input']['search_node']['forces']['field'] : $form['search_node']['forces']['field']['#default_value'];
@@ -695,6 +701,25 @@ function search_node_page_configuration_form($form, array &$form_state = array()
     '#suffix' => '</div>',
   );
 
+  $form['search_node']['highlight'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Highlighting'),
+    '#description' => t('Highlight search results.'),
+    '#tree' => TRUE,
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+  );
+
+  $search_fields = array();
+  $form['search_node']['highlight']['fields'] = array(
+    '#type' => 'checkboxes',
+    '#title' => t('Search fields'),
+    '#description' => t('Select the fields to highlight'),
+    '#options' => $search_fields,
+    '#default_value' => isset($defaults['highlight']['fields']) ? $defaults['highlight']['fields'] : array(),
+    '#required' => TRUE,
+  );
+
   $form['search_node']['templates'] = array(
     '#type' => 'fieldset',
     '#title' => t('Search templates'),
@@ -903,6 +928,16 @@ function search_node_page_build_search_box($configuration = array()) {
     // Add initial query search string.
     if (isset($configuration['options']['initial_query_enable']) && $configuration['options']['initial_query_enable']) {
       $conf['initialQueryText'] = $configuration['options']['initial_query_text'];
+    }
+
+    // Add highlight.
+    if (isset($configuration['highlight']['fields'])) {
+      $fields = array_filter($configuration['highlight']['fields']);
+      if (!empty($fields)) {
+        $conf['provider']['highlight'] = array(
+          'fields' => $fields,
+        );
+      }
     }
 
     // Build taxonomy filters.
