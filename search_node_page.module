@@ -213,13 +213,14 @@ function search_node_page_form_block_admin_configure_alter(&$form, &$form_state,
         'boolean' => array(),
       );
 
-      // Find index.
+      // Find index from form values.
       $selected_index = !empty($form_state['values']['search_node']['index']) ? $form_state['values']['search_node']['index'] : $form['settings']['search_node']['index']['#default_value'];
 
       if (!$selected_index) {
-        // Load default configuration.
-        $configuration = variable_get('search_node_page_search_box', 'hello');
+        // Load default configuration from database.
+        $configuration = variable_get('search_node_page_search_box', array());
 
+        // Try and load saved index.
         if (isset($configuration['index']) && !empty($configuration['index'])) {
           $selected_index = $configuration['index'];
           $index = search_api_index_load($selected_index);
